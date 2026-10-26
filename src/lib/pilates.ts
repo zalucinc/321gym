@@ -11,6 +11,8 @@ export interface PilatesMove {
   minutes: number;
   howTo: string[];
   cues: string[];
+  /** YouTube id, filled from src/lib/pilates-videos.ts. */
+  video?: string;
 }
 
 export const PILATES: PilatesMove[] = [

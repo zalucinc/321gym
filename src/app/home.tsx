@@ -7,7 +7,7 @@ import { store } from "@/lib/store";
 import { buildIcs, downloadIcs } from "@/lib/ics";
 import { GENERAL_CLAIMS, GOAL_CLAIMS, type Claim } from "@/lib/evidence";
 import { computeProgress } from "@/lib/progress";
-import { mediaFrames } from "@/lib/exercises";
+import { coverImage } from "@/lib/exercises";
 import { recommend } from "@/lib/recommend";
 
 const DEFAULT: Profile = { name: "", goal: "general", minutes: 45, days: 3 };
@@ -266,12 +266,12 @@ function summary(s: Session) {
   return shown.join(" · ") + (names.length > shown.length ? " · …" : "");
 }
 
-/** First photo in the session, for cards. Pilates has none yet → warm gradient. */
+/** First photo (or video thumbnail) in the session, for cards. */
 function coverUrl(s: Session): string | null {
   for (const b of s.blocks) {
     if (b.kind !== "main" && b.kind !== "flow") continue;
-    const f = mediaFrames(b.exercise);
-    if (f.length) return f[0];
+    const url = coverImage(b.exercise);
+    if (url) return url;
   }
   return null;
 }

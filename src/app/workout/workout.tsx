@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { generateQuick, generateSession, type Block, type Focus, type Goal, type Profile } from "@/lib/generate";
 import { store, suggestLoad, type SetLog } from "@/lib/store";
-import { mediaFrames, youtubeSearchUrl, type Exercise } from "@/lib/exercises";
+import { mediaFrames, videoEmbedUrl, youtubeSearchUrl, type Exercise } from "@/lib/exercises";
 import { equipmentById } from "@/lib/equipment";
 
 export default function Workout() {
@@ -220,9 +220,10 @@ function BlockCard({ block, last, logged, onLog, onSwap }: { block: Block; last?
   );
 }
 
-/** Start/end photos, alternated every second so the movement reads as motion. Tap to pause. */
+/** Start/end photos alternated every second, or an embedded video when there are no photos. */
 function Frames({ exercise }: { exercise: Exercise }) {
   const frames = mediaFrames(exercise);
+  const embed = videoEmbedUrl(exercise);
   const [i, setI] = useState(0);
   const [paused, setPaused] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -231,6 +232,21 @@ function Frames({ exercise }: { exercise: Exercise }) {
     const id = setInterval(() => setI((x) => (x + 1) % frames.length), 1000);
     return () => clearInterval(id);
   }, [paused, frames.length]);
+  if (!frames.length && embed) {
+    return (
+      <div className="overflow-hidden rounded-xl bg-surface-2">
+        <iframe
+          src={embed}
+          title={`${exercise.name} demo`}
+          className="aspect-video w-full"
+          loading="lazy"
+          allow="accelerometer; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+          referrerPolicy="strict-origin-when-cross-origin"
+        />
+      </div>
+    );
+  }
   if (!frames.length || failed) return null;
   return (
     <button type="button" onClick={() => setPaused((p) => !p)} className="relative block w-full overflow-hidden rounded-xl bg-surface-2">

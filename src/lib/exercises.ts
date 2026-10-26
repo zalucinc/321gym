@@ -34,6 +34,8 @@ export interface Exercise {
   timed?: boolean;
   /** free-exercise-db id: two photos, start and end position. */
   media?: string;
+  /** YouTube video id for moves without photos (pilates). Embedded privacy-enhanced. */
+  video?: string;
   howTo: string[];
   cues: string[];
   mistakes?: string[];
@@ -879,6 +881,17 @@ export const exerciseById = Object.fromEntries(EXERCISES.map((e) => [e.id, e])) 
 const MEDIA_BASE = "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises";
 export function mediaFrames(ex: Exercise): string[] {
   return ex.media ? [`${MEDIA_BASE}/${ex.media}/0.jpg`, `${MEDIA_BASE}/${ex.media}/1.jpg`] : [];
+}
+
+/** A still for cards: first photo frame, else the video's thumbnail. */
+export function coverImage(ex: Exercise): string | null {
+  if (ex.media) return mediaFrames(ex)[0];
+  if (ex.video) return `https://i.ytimg.com/vi/${ex.video}/hqdefault.jpg`;
+  return null;
+}
+
+export function videoEmbedUrl(ex: Exercise): string | null {
+  return ex.video ? `https://www.youtube-nocookie.com/embed/${ex.video}?rel=0&modestbranding=1&playsinline=1` : null;
 }
 
 export function youtubeSearchUrl(ex: Exercise): string {

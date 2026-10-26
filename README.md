@@ -29,8 +29,10 @@ and estimated-1RM strength trends per exercise.
 - `src/lib/evidence.ts` — graded claims + sources behind the numbers (collapsed in the UI).
 - `src/lib/progress.ts` — attendance, streaks, strength trends.
 - Exercise photos (start/end frames) come from the open
-  [free-exercise-db](https://github.com/yuhonas/free-exercise-db) dataset; pilates
-  moves don't have photos yet and fall back to a demo link.
+  [free-exercise-db](https://github.com/yuhonas/free-exercise-db) dataset.
+- Pilates moves embed one short YouTube tutorial each (`src/lib/pilates-videos.ts`,
+  privacy-enhanced embed, loads only when the how-to is opened). Ids were checked
+  embeddable via oEmbed; if one goes dark, swap the id there.
 - `src/app/page.tsx` — setup + weekly plan.
 - `src/app/workout/page.tsx` — the workout player.
 

@@ -1,6 +1,7 @@
 import { equipmentById } from "./equipment";
 import { EXERCISES, type Exercise, type Pattern } from "./exercises";
 import { PILATES } from "./pilates";
+import { PILATES_VIDEOS } from "./pilates-videos";
 
 export type Goal = "muscle" | "strength" | "fatloss" | "general" | "pilates";
 export const GOALS: { id: Goal; label: string; blurb: string }[] = [
@@ -225,7 +226,7 @@ function generatePilates(profile: Profile, dayIndex: number, weekSeed: number): 
 }
 
 function toExercise(m: (typeof PILATES)[number]): Exercise {
-  return { id: m.id, name: m.name, pattern: "core", equipment: ["mat"], muscles: ["core"], load: "bodyweight", howTo: m.howTo, cues: m.cues };
+  return { id: m.id, name: m.name, pattern: "core", equipment: ["mat"], muscles: ["core"], load: "bodyweight", howTo: m.howTo, cues: m.cues, video: m.video ?? PILATES_VIDEOS[m.id] };
 }
 
 export function generateWeek(profile: Profile, weekSeed = 0): Session[] {
