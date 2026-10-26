@@ -1,21 +1,31 @@
 @import "tailwindcss";
 
+/* warm studio: near-black with warmth, cream text, terracotta + sand accents */
 :root {
-  --bg: #0a0a0a;
-  --fg: #e7e5e4;
-  --muted: #78716c;
-  --line: #262626;
-  --accent: #d6d3d1;
+  --bg: #141110;
+  --surface: #1d1917;
+  --surface-2: #262120;
+  --line: #2e2825;
+  --fg: #f1e9df;
+  --muted: #a39282;
+  --accent: #c9785b;
+  --accent-ink: #1a110d;
+  --sand: #dcc4a4;
 }
 
 @theme inline {
   --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--line);
   --color-fg: var(--fg);
   --color-muted: var(--muted);
-  --color-line: var(--line);
   --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-sand: var(--sand);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-fraunces);
 }
 
 html {
@@ -41,22 +51,34 @@ input {
 }
 
 @layer components {
+  .display {
+    font-family: var(--font-display), Georgia, serif;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    font-variation-settings: "opsz" 72, "SOFT" 60;
+  }
   .input {
-    @apply w-full rounded-md border border-line bg-transparent px-3 py-2 text-base text-fg placeholder:text-muted focus:border-accent focus:outline-none;
+    @apply w-full rounded-xl border border-line bg-surface px-4 py-3 text-base text-fg placeholder:text-muted focus:border-sand focus:outline-none;
   }
   .btn {
-    @apply rounded-md bg-fg px-4 py-2.5 text-sm font-medium text-bg disabled:opacity-30 active:opacity-80;
+    @apply rounded-xl bg-accent px-5 py-3 text-sm font-medium text-accent-ink disabled:opacity-30 active:brightness-95;
+  }
+  .btn-ghost {
+    @apply rounded-xl border border-line bg-surface px-5 py-3 text-sm text-fg active:bg-surface-2;
   }
   .choice {
-    @apply rounded-md border border-line px-3 py-2 text-left text-sm text-muted active:opacity-80;
+    @apply rounded-xl border border-transparent bg-surface px-3 py-2.5 text-left text-sm text-muted active:bg-surface-2;
   }
   .choice-on {
-    @apply border-accent text-fg;
+    @apply border-sand/60 bg-surface-2 text-fg;
   }
   .card {
-    @apply rounded-lg border border-line p-4;
+    @apply overflow-hidden rounded-2xl bg-surface;
   }
   .label {
-    @apply mb-2 block text-xs tracking-wide text-muted;
+    @apply mb-3 block text-xs tracking-[0.12em] text-muted;
+  }
+  .eyebrow {
+    @apply text-[10px] tracking-[0.14em] text-sand/80;
   }
 }

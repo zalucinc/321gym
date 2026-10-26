@@ -77,15 +77,16 @@ export default function Workout() {
 
   return (
     <main className="mx-auto w-full max-w-md flex-1 px-5 pb-36 pt-8">
-      <header className="mb-8 flex items-baseline justify-between">
+      <header className="mb-8 flex items-end justify-between">
         <div>
           <Link href="/" className="text-xs text-muted">← back</Link>
-          <h1 className="mt-1 text-xl font-medium">{base.title}</h1>
+          <p className="eyebrow mt-3">{quick ? "right now" : `day ${dayIndex + 1}`}</p>
+          <h1 className="display mt-1 text-3xl leading-tight">{base.title}</h1>
         </div>
-        <span className="font-mono text-sm text-muted tabular-nums">{fmt(elapsed)}</span>
+        <span className="display text-2xl text-muted tabular-nums">{fmt(elapsed)}</span>
       </header>
 
-      <ol className="divide-y divide-line border-y border-line">
+      <ol className="space-y-3">
         {blocks.map((b, i) => (
           <BlockCard key={i} block={b} last={lastSets[b.exercise.id]} logged={logs[i] ?? []} onLog={(s) => logSet(i, s, b.restSec)} onSwap={(ex) => setSwaps((s) => ({ ...s, [i]: ex }))} />
         ))}
@@ -96,19 +97,19 @@ export default function Workout() {
       </button>
 
       {rest && rest.left > 0 && (
-        <div className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-bg/95 p-5 backdrop-blur">
+        <div className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-surface/95 p-5 backdrop-blur">
           <div className="mx-auto flex max-w-md items-center justify-between">
             <div>
-              <div className="text-xs text-muted">rest</div>
-              <div className="font-mono text-4xl font-medium tabular-nums">{fmt(rest.left)}</div>
+              <div className="eyebrow">rest</div>
+              <div className="display text-5xl tabular-nums">{fmt(rest.left)}</div>
             </div>
             <div className="flex gap-2">
               <button className="choice" onClick={() => setRest({ ...rest, left: rest.left + 30 })}>+30 s</button>
               <button className="btn" onClick={() => setRest(null)}>skip</button>
             </div>
           </div>
-          <div className="mt-3 h-px w-full bg-line">
-            <div className="h-full bg-accent transition-all" style={{ width: `${(rest.left / rest.total) * 100}%` }} />
+          <div className="mt-4 h-1 w-full overflow-hidden rounded-full bg-line">
+            <div className="h-full rounded-full bg-accent transition-all" style={{ width: `${(rest.left / rest.total) * 100}%` }} />
           </div>
         </div>
       )}
@@ -128,11 +129,11 @@ function BlockCard({ block, last, logged, onLog, onSwap }: { block: Block; last?
   const needsLoad = ex.load !== "bodyweight" && ex.load !== "time";
 
   return (
-    <li className={`py-5 ${done ? "opacity-40" : ""}`}>
+    <li className={`card p-4 ${done ? "opacity-50" : ""}`}>
       <div className="flex items-start justify-between gap-3">
         <div>
-          <div className="text-[10px] tracking-wide text-muted">{block.kind}</div>
-          <button className="text-left text-lg leading-tight" onClick={() => setOpen((o) => !o)}>
+          <div className="eyebrow">{block.kind}</div>
+          <button className="display text-left text-xl leading-tight" onClick={() => setOpen((o) => !o)}>
             {ex.name}
           </button>
           <div className="mt-0.5 text-sm text-muted">
@@ -166,16 +167,16 @@ function BlockCard({ block, last, logged, onLog, onSwap }: { block: Block; last?
             {ex.howTo.map((s, i) => <li key={i}>{s}</li>)}
           </ol>
           <div className="text-muted">
-            <span className="text-fg">cues · </span>
+            <span className="text-sand">cues · </span>
             {ex.cues.join(" · ")}
           </div>
           {ex.mistakes && (
             <div className="text-muted">
-              <span className="text-fg">avoid · </span>
+              <span className="text-sand">avoid · </span>
               {ex.mistakes.join(" · ")}
             </div>
           )}
-          <a href={youtubeSearchUrl(ex)} target="_blank" rel="noreferrer" className="inline-block text-muted underline">
+          <a href={youtubeSearchUrl(ex)} target="_blank" rel="noreferrer" className="inline-block text-sand underline">
             watch a demo ↗
           </a>
         </div>
@@ -185,15 +186,15 @@ function BlockCard({ block, last, logged, onLog, onSwap }: { block: Block; last?
         <div className="mt-3 text-xs text-muted">
           last time · {last[0].weight != null ? `${last[0].weight} × ` : ""}
           {last.map((s) => s.reps).join(", ")}
-          {suggestion.up && needsLoad && <span className="ml-1 text-fg">→ try {suggestion.weight}</span>}
-          {suggestion.up && !needsLoad && <span className="ml-1 text-fg">→ add reps or load</span>}
+          {suggestion.up && needsLoad && <span className="ml-1 text-sand">→ try {suggestion.weight}</span>}
+          {suggestion.up && !needsLoad && <span className="ml-1 text-sand">→ add reps or load</span>}
         </div>
       )}
 
       {!isFlow && logged.length > 0 && (
         <div className="mt-3 flex flex-wrap gap-1.5 font-mono text-xs text-muted">
           {logged.map((s, i) => (
-            <span key={i} className="rounded border border-line px-2 py-0.5">
+            <span key={i} className="rounded-md bg-surface-2 px-2 py-0.5 text-sand">
               {s.weight != null ? `${s.weight}×` : ""}{s.reps}{ex.timed ? "s" : ""}
             </span>
           ))}
@@ -201,7 +202,7 @@ function BlockCard({ block, last, logged, onLog, onSwap }: { block: Block; last?
       )}
 
       {!done && (isFlow ? (
-        <button className="choice mt-4 w-full text-center" onClick={() => onLog({ weight: null, reps: 1 })}>
+        <button className="btn-ghost mt-4 w-full text-center" onClick={() => onLog({ weight: null, reps: 1 })}>
           done
         </button>
       ) : (
@@ -232,7 +233,7 @@ function Frames({ exercise }: { exercise: Exercise }) {
   }, [paused, frames.length]);
   if (!frames.length || failed) return null;
   return (
-    <button type="button" onClick={() => setPaused((p) => !p)} className="relative block w-full overflow-hidden rounded-md border border-line bg-[#111]">
+    <button type="button" onClick={() => setPaused((p) => !p)} className="relative block w-full overflow-hidden rounded-xl bg-surface-2">
       {/* eslint-disable-next-line @next/next/no-img-element -- remote photos, two frames, no optimisation needed */}
       <img src={frames[i]} alt={`${exercise.name}, ${i === 0 ? "start" : "end"} position`} className="aspect-[4/3] w-full object-contain" onError={() => setFailed(true)} />
       <span className="absolute bottom-2 right-2 font-mono text-[10px] text-muted">{i === 0 ? "start" : "end"}{paused ? " · paused" : ""}</span>
