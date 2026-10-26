@@ -1,36 +1,42 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 321gym
 
-## Getting Started
+Workouts built from the equipment that's actually in our building's gym.
+Pick a goal, how long you have, and how many days a week; get a plan that
+rotates weekly, with how-to for every exercise, a rest timer, set logging,
+progression suggestions, and calendar reminders.
 
-First, run the development server:
+## Run it
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000. Add to home screen on your phone to use it as an app.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Two ways in: **right now** (pick minutes + focus, go) or **my week** (goal,
+days, a rotating plan with reminders). Progress shows sessions, weekly streak
+and estimated-1RM strength trends per exercise.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Where things live
 
-## Learn More
+- `src/lib/equipment.ts` — what's in the gym. Flip `available: false` when something breaks.
+- `src/lib/exercises.ts` — exercise library: pattern, equipment, how-to, cues.
+- `src/lib/generate.ts` — turns goal + minutes + days into sessions.
+- `src/lib/store.ts` — localStorage persistence and the progression rule.
+- `src/lib/ics.ts` — reminders as a recurring calendar event.
+- `src/lib/pilates.ts` — classical mat sequence, two levels.
+- `src/lib/evidence.ts` — graded claims + sources behind the numbers (collapsed in the UI).
+- `src/lib/progress.ts` — attendance, streaks, strength trends.
+- Exercise photos (start/end frames) come from the open
+  [free-exercise-db](https://github.com/yuhonas/free-exercise-db) dataset; pilates
+  moves don't have photos yet and fall back to a demo link.
+- `src/app/page.tsx` — setup + weekly plan.
+- `src/app/workout/page.tsx` — the workout player.
 
-To learn more about Next.js, take a look at the following resources:
+## v1 limits (on purpose)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Data lives on the device. Building code + nickname sharing and a Postgres
+  backend are the next slice.
+- Reminders use the phone's calendar instead of push, so no server is needed.
+- Demo videos are YouTube search links rather than hosted clips.

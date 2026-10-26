@@ -1,26 +1,62 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #0a0a0a;
+  --fg: #e7e5e4;
+  --muted: #78716c;
+  --line: #262626;
+  --accent: #d6d3d1;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-bg: var(--bg);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  color-scheme: dark;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  text-transform: lowercase;
+  padding-bottom: env(safe-area-inset-bottom);
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* browsers reset text-transform on form controls; buttons should follow the page */
+button,
+summary {
+  text-transform: inherit;
+}
+input {
+  text-transform: none;
+}
+
+@layer components {
+  .input {
+    @apply w-full rounded-md border border-line bg-transparent px-3 py-2 text-base text-fg placeholder:text-muted focus:border-accent focus:outline-none;
+  }
+  .btn {
+    @apply rounded-md bg-fg px-4 py-2.5 text-sm font-medium text-bg disabled:opacity-30 active:opacity-80;
+  }
+  .choice {
+    @apply rounded-md border border-line px-3 py-2 text-left text-sm text-muted active:opacity-80;
+  }
+  .choice-on {
+    @apply border-accent text-fg;
+  }
+  .card {
+    @apply rounded-lg border border-line p-4;
+  }
+  .label {
+    @apply mb-2 block text-xs tracking-wide text-muted;
+  }
 }
