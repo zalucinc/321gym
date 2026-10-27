@@ -50,6 +50,12 @@ input {
   text-transform: none;
 }
 
+@keyframes fadeup {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+.fadeup { animation: fadeup 0.7s ease-out both; }
+
 @layer components {
   .display {
     font-family: var(--font-display), Georgia, serif;

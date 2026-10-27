@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { DAYS, FOCUS, GOALS, MINUTES, generateQuick, generateWeek, type Focus, type Profile, type Session } from "@/lib/generate";
 import { store } from "@/lib/store";
 import { buildIcs, downloadIcs } from "@/lib/ics";
@@ -21,7 +22,9 @@ function greeting() {
 }
 
 export default function Home() {
+  const router = useRouter();
   const [verse] = useState(() => randomVerse());
+  const [welcome, setWelcome] = useState(() => new URLSearchParams(window.location.search).get("welcome") === "1");
   const [profile, setProfile] = useState<Profile>(() => store.getProfile() ?? DEFAULT);
   const [history, setHistory] = useState(() => store.getHistory());
   const [done, setDone] = useState(() => store.getSessionsDone());
@@ -93,7 +96,7 @@ export default function Home() {
           {me ? (
             <>
               <span className="text-sand">{me.nickname}</span> · building {me.building} ·{" "}
-              <button className="underline" onClick={async () => { await sync.signOut(); setMe(null); setBuilding(null); }}>sign out</button>
+              <button className="underline" onClick={async () => { await sync.signOut(); router.push("/join"); }}>sign out</button>
             </>
           ) : (
             <Link href="/join" className="text-sand underline">join the building</Link>
@@ -101,6 +104,19 @@ export default function Home() {
           {!me && <span> · keeps your history across phones</span>}
         </p>
       </header>
+
+      {welcome && (
+        <section className="mb-4 rounded-2xl border border-sand/30 bg-surface p-5">
+          <p className="eyebrow">welcome</p>
+          <h2 className="display mt-2 text-3xl leading-tight">you&apos;re in{me?.nickname ? `, ${me.nickname}` : ""}.</h2>
+          <p className="mt-3 text-sm leading-relaxed text-muted">
+            pick how long you have and go. everything you lift gets remembered; next time it tells you when to go up. if a machine is taken, tap swap.
+          </p>
+          <button className="btn mt-4 w-full" onClick={() => { setWelcome(false); window.history.replaceState(null, "", "/"); }}>
+            show me the gym
+          </button>
+        </section>
+      )}
 
       {/* ---- for today ---------------------------------------------------- */}
       {rec.notes.length > 0 && (

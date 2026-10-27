@@ -22,11 +22,8 @@ function DoneInner() {
   const allTop = params.get("top") === "1";
   const [entry] = useState(() => store.getHistory()[0] ?? null);
   const [progress] = useState(() => computeProgress(store.getHistory()));
-  const [shown, setShown] = useState(false);
   useEffect(() => {
     if (!entry) router.replace("/");
-    const id = requestAnimationFrame(() => setShown(true));
-    return () => cancelAnimationFrame(id);
   }, [entry, router]);
   if (!entry) return null;
 
@@ -44,7 +41,7 @@ function DoneInner() {
   ];
 
   return (
-    <main className={`mx-auto flex w-full max-w-md flex-1 flex-col px-5 pb-16 pt-16 transition-all duration-700 ${shown ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"}`}>
+    <main className={`mx-auto flex w-full max-w-md flex-1 flex-col px-5 pb-16 pt-16 fadeup`}>
       <p className="eyebrow">done · {entry.title}</p>
       <h1 className="display mt-3 text-5xl leading-[1.05]">{line}</h1>
 
