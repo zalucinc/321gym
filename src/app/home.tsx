@@ -9,7 +9,7 @@ import { GENERAL_CLAIMS, GOAL_CLAIMS, type Claim } from "@/lib/evidence";
 import { computeProgress } from "@/lib/progress";
 import { coverImage } from "@/lib/exercises";
 import { recommend } from "@/lib/recommend";
-import { dailyLine } from "@/lib/fun";
+import { randomVerse } from "@/lib/fun";
 import { sync, type Building, type Me } from "@/lib/sync";
 
 const DEFAULT: Profile = { name: "", goal: "general", minutes: 45, days: 3 };
@@ -21,6 +21,7 @@ function greeting() {
 }
 
 export default function Home() {
+  const [verse] = useState(() => randomVerse());
   const [profile, setProfile] = useState<Profile>(() => store.getProfile() ?? DEFAULT);
   const [history, setHistory] = useState(() => store.getHistory());
   const [done, setDone] = useState(() => store.getSessionsDone());
@@ -85,8 +86,8 @@ export default function Home() {
           {greeting()}
           {profile.name ? `, ${profile.name}` : ""}.
         </h1>
-        <p className="display mt-3 text-lg leading-snug text-fg/90">{dailyLine().text}</p>
-        <p className="mt-1 text-xs text-muted">— {dailyLine().by}</p>
+        <p className="display mt-3 text-lg leading-snug text-fg/90">{verse.text}</p>
+        <p className="mt-1 text-xs text-muted">— {verse.by}</p>
         <p className="mt-4 text-xs text-muted">
           {me ? (
             <>

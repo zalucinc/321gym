@@ -67,35 +67,43 @@ export function finishLine(c: FinishContext): string {
 
 export interface Verse { text: string; by: string }
 
-// Public-domain verse on struggle, pain and work. Short excerpts, attributed.
+// Philosophers on struggle, pain and work. Public-domain translations
+// (long 1862, gummere 1917, jowett 1871, legge 1891, cotton 1685), attributed.
 const VERSE: Verse[] = [
-  { text: "under the bludgeonings of chance my head is bloody, but unbowed.", by: "w. e. henley, invictus, 1888" },
-  { text: "i am the master of my fate, i am the captain of my soul.", by: "w. e. henley, invictus, 1888" },
-  { text: "if you can force your heart and nerve and sinew to serve your turn long after they are gone.", by: "rudyard kipling, if—, 1910" },
-  { text: "if you can fill the unforgiving minute with sixty seconds' worth of distance run.", by: "rudyard kipling, if—, 1910" },
-  { text: "life for me ain't been no crystal stair.", by: "langston hughes, mother to son, 1922" },
-  { text: "so boy, don't you turn back. don't you set down on the steps 'cause you finds it's kinder hard.", by: "langston hughes, mother to son, 1922" },
-  { text: "i'se still goin', honey, i'se still climbin'.", by: "langston hughes, mother to son, 1922" },
-  { text: "if there is no struggle, there is no progress.", by: "frederick douglass, 1857" },
-  { text: "the credit belongs to the man who is actually in the arena, whose face is marred by dust and sweat and blood.", by: "theodore roosevelt, 1910" },
-  { text: "who strives valiantly; who errs, who comes short again and again.", by: "theodore roosevelt, 1910" },
-  { text: "i know why the caged bird beats his wing till its blood is red on the cruel bars.", by: "paul laurence dunbar, sympathy, 1899" },
-  { text: "we never know how high we are till we are called to rise.", by: "emily dickinson, c. 1870" },
-  { text: "i am larger, better than i thought; i did not know i held so much goodness.", by: "walt whitman, song of the open road, 1856" },
-  { text: "that which we persist in doing becomes easier, not that the nature of the thing has changed, but that our power to do has increased.", by: "ralph waldo emerson" },
-  { text: "the art of life is more like the wrestler's art than the dancer's.", by: "marcus aurelius, meditations" },
-  { text: "nothing happens to any man which he is not formed by nature to bear.", by: "marcus aurelius, meditations" },
-  { text: "difficulties strengthen the mind, as labor does the body.", by: "seneca" },
-  { text: "the race is not to the swift, nor the battle to the strong.", by: "ecclesiastes 9:11" },
-  { text: "they can because they think they can.", by: "virgil, aeneid" },
-  { text: "dripping water hollows out stone, not through force but through persistence.", by: "ovid" },
-  { text: "no bird soars too high if he soars with his own wings.", by: "william blake, 1790" },
-];
+  { text: "difficulties strengthen the mind, as labor does the body.", by: "seneca, on providence" },
+  { text: "fire tests gold; suffering tests brave men.", by: "seneca, on providence" },
+  { text: "no man is more unhappy than he who never faces adversity, for he is not permitted to prove himself.", by: "seneca, on providence" },
+  { text: "it is not because things are difficult that we do not dare; it is because we do not dare that things are difficult.", by: "seneca, letters, 104" },
+  { text: "we suffer more often in imagination than in reality.", by: "seneca, letters, 13" },
+  { text: "the art of life is more like the wrestler's art than the dancer's.", by: "marcus aurelius, meditations, vii" },
+  { text: "nothing happens to any man which he is not formed by nature to bear.", by: "marcus aurelius, meditations, v" },
+  { text: "that which is an impediment is made a furtherance to an act; and that which is an obstacle on the road helps us on this road.", by: "marcus aurelius, meditations, v" },
+  { text: "in the morning when you rise unwillingly, let this thought be present: i am rising to the work of a human being.", by: "marcus aurelius, meditations, v" },
+  { text: "it is difficulties that show what men are.", by: "epictetus, discourses, i.24" },
+  { text: "first say to yourself what you would be; and then do what you have to do.", by: "epictetus, discourses, iii.23" },
+  { text: "no man is free who is not master of himself.", by: "epictetus" },
+  { text: "that which does not kill me makes me stronger.", by: "nietzsche, twilight of the idols, 1888" },
+  { text: "he who has a why to live can bear almost any how.", by: "nietzsche, twilight of the idols, 1888" },
+  { text: "the way up and the way down are one and the same.", by: "heraclitus" },
+  { text: "the first and best victory is to conquer self.", by: "plato, laws" },
+  { text: "the greater the difficulty, the greater the glory.", by: "cicero, de officiis" },
+  { text: "the journey of a thousand miles began with a single step.", by: "lao tzu, tao te ching, 64" },
+  { text: "he who fears he shall suffer, already suffers what he fears.", by: "montaigne, essays" },
+  { text: "mostly it is loss which teaches us about the worth of things.", by: "schopenhauer" },
+  { text: "you have a right to the work, but never to its fruit.", by: "bhagavad gita, 2.47" },
+  { text: "it is not enough to be busy; so are the ants. the question is: what are we busy about?", by: "thoreau, 1857" },
+  { text: "that which we persist in doing becomes easier, not that the nature of the thing has changed, but that our power to do has increased.", by: "emerson" },
+  { text: "we are what we repeatedly do. excellence, then, is not an act, but a habit.", by: "will durant on aristotle, 1926" },
+]
 
-/** Verse under the greeting, changes once a day. */
-export function dailyLine(d = new Date()): Verse {
-  const day = Math.floor(d.getTime() / 864e5);
-  return VERSE[day % VERSE.length];
+/** A fresh line on every open, never the same as the last one shown. */
+export function randomVerse(): Verse {
+  const KEY = "gym.lastVerse";
+  const last = Number(sessionStorage.getItem(KEY) ?? -1);
+  let i = Math.floor(Math.random() * VERSE.length);
+  if (i === last) i = (i + 1) % VERSE.length;
+  sessionStorage.setItem(KEY, String(i));
+  return VERSE[i];
 }
 
 /** Verse under the rest timer. Picks by set count so it changes through the session. */
