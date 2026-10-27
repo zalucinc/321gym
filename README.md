@@ -71,11 +71,12 @@ cd ios && xcodegen generate            # project.yml → Gym321.xcodeproj
 xcodebuild -project Gym321.xcodeproj -scheme Gym321 \
   -destination 'generic/platform=iOS' -configuration Release \
   -archivePath build/Gym321.xcarchive -allowProvisioningUpdates archive
-open build/Gym321.xcarchive            # Xcode Organizer → Distribute App → TestFlight
 ```
 
-Bundle id `com.zalucinc.gym321`, team in `project.yml`. Bump
-`CURRENT_PROJECT_VERSION` before each upload.
+Or all of it, with the build-number bump and the TestFlight upload: `ios/ship.sh`.
+The upload uses the Apple account signed into Xcode (Settings → Accounts); the
+first upload created the App Store Connect record. Bundle id
+`com.zalucinc.gym321`, team in `project.yml`.
 
 ## Deliberate limits
 
