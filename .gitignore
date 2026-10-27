@@ -42,3 +42,8 @@ next-env.d.ts
 
 # local claude settings
 .claude/settings.local.json
+
+# ios build output
+ios/build/
+ios/*.xcodeproj/xcuserdata/
+ios/*.xcodeproj/project.xcworkspace/xcuserdata/

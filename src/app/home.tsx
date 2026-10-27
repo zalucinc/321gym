@@ -65,6 +65,7 @@ export default function Home() {
 
   const [reminderDays, setReminderDays] = useState<number[]>([1, 3, 5]);
   const [reminderTime, setReminderTime] = useState("18:30");
+  const [reminderSaved, setReminderSaved] = useState(false);
 
   const update = (patch: Partial<Profile>) => {
     const next = { ...profile, ...patch };
@@ -280,13 +281,21 @@ export default function Home() {
                   disabled={!reminderDays.length}
                   onClick={() => {
                     const [h, m] = reminderTime.split(":").map(Number);
+                    if (isNativeShell()) {
+                      // Inside the iOS app: schedule real notifications instead of a calendar file.
+                      window.webkit?.messageHandlers?.reminders?.postMessage({ days: reminderDays, hour: h, minute: m, minutes: profile.minutes });
+                      setReminderSaved(true);
+                      return;
+                    }
                     downloadIcs(buildIcs({ days: reminderDays, hour: h, minute: m, title: "gym", durationMin: profile.minutes }));
                   }}
                 >
-                  add to calendar
+                  {isNativeShell() ? (reminderSaved ? "saved" : "remind me") : "add to calendar"}
                 </button>
               </div>
-              <p className="mt-3 text-xs text-muted">a repeating event with a 15-minute alert, in your own calendar app.</p>
+              <p className="mt-3 text-xs text-muted">
+                {isNativeShell() ? "a notification on those days at that time, on this phone." : "a repeating event with a 15-minute alert, in your own calendar app."}
+              </p>
             </div>
           </>
         ) : (
@@ -323,6 +332,17 @@ export default function Home() {
       )}
     </main>
   );
+}
+
+// The iOS shell injects this flag and exposes a notifications bridge.
+declare global {
+  interface Window {
+    __gym321Native?: boolean;
+    webkit?: { messageHandlers?: { reminders?: { postMessage: (m: unknown) => void } } };
+  }
+}
+function isNativeShell() {
+  return typeof window !== "undefined" && window.__gym321Native === true;
 }
 
 /** Presence buckets from the live count. Counts only, never names. */
