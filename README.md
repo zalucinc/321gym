@@ -36,9 +36,27 @@ and estimated-1RM strength trends per exercise.
 - `src/app/page.tsx` — setup + weekly plan.
 - `src/app/workout/page.tsx` — the workout player.
 
-## v1 limits (on purpose)
+## Shared accounts
 
-- Data lives on the device. Building code + nickname sharing and a Postgres
-  backend are the next slice.
-- Reminders use the phone's calendar instead of push, so no server is needed.
-- Demo videos are YouTube search links rather than hosted clips.
+Residents join with the **building code** (you set it), a **nickname** and a
+**4-digit pin**. No email. The pin only stops a neighbour logging sessions as
+you: it's scrypt-hashed and five wrong tries lock the name for 15 minutes.
+Signed-in phones hydrate from the server on load and push every finished
+session; if the gym has no signal the write queues and retries next time.
+"this week in the building" shows everyone's session count for the week.
+
+```bash
+cp .env.example .env.local   # DATABASE_URL + BUILDING_CODES
+createdb apt_gym_dev          # schema is created on first request
+```
+
+- `src/lib/db.ts` — pg pool + schema (members, profiles, sessions).
+- `src/lib/auth.ts` — join / sign in, pin hashing, lockout, cookie.
+- `src/lib/sync.ts` — client side: hydrate, push, offline queue.
+- `src/app/api/*` — join, me, profile, sessions, logout.
+
+## Deliberate limits
+
+- Reminders use the phone's calendar instead of push, so no push server is needed.
+- No password reset: a forgotten pin means a new nickname (or an admin `update`).
+- One building code per deployment is plenty; the env var takes several if needed.

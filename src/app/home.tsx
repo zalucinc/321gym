@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { DAYS, FOCUS, GOALS, MINUTES, generateQuick, generateWeek, type Focus, type Profile, type Session } from "@/lib/generate";
 import { store } from "@/lib/store";
@@ -9,6 +9,8 @@ import { GENERAL_CLAIMS, GOAL_CLAIMS, type Claim } from "@/lib/evidence";
 import { computeProgress } from "@/lib/progress";
 import { coverImage } from "@/lib/exercises";
 import { recommend } from "@/lib/recommend";
+import { dailyLine } from "@/lib/fun";
+import { sync, type BuildingRow, type Me } from "@/lib/sync";
 
 const DEFAULT: Profile = { name: "", goal: "general", minutes: 45, days: 3 };
 const WEEKDAYS = ["su", "mo", "tu", "we", "th", "fr", "sa"];
@@ -24,11 +26,30 @@ export default function Home() {
   const [done, setDone] = useState(() => store.getSessionsDone());
   const [showPlan, setShowPlan] = useState(() => store.getProfile() != null);
 
-  const [rec] = useState(() => recommend(store.getHistory(), store.getLastSets(), store.getProfile() ?? DEFAULT));
+  const [rec, setRec] = useState(() => recommend(store.getHistory(), store.getLastSets(), store.getProfile() ?? DEFAULT));
   const [nowMinutes, setNowMinutes] = useState<Profile["minutes"]>(30);
   const [nowFocus, setNowFocus] = useState<Focus>(rec.focus);
   const quickSeed = history.filter((h) => h.quick).length;
   const preview = generateQuick(profile.goal, nowMinutes, nowFocus, quickSeed);
+
+  const [me, setMe] = useState<Me | null>(() => sync.getMe());
+  const [building, setBuilding] = useState<BuildingRow[]>([]);
+  useEffect(() => {
+    if (!sync.getMe()) return;
+    sync.hydrate().then((r) => {
+      if (!r) { setMe(null); return; }
+      setMe(r.me);
+      setBuilding(r.building);
+      setProfile(store.getProfile() ?? DEFAULT);
+      setHistory(store.getHistory());
+      setDone(store.getSessionsDone());
+      setShowPlan(store.getProfile() != null);
+      // Server history may change today's advice and the default focus.
+      const fresh = recommend(store.getHistory(), store.getLastSets(), store.getProfile() ?? DEFAULT);
+      setRec(fresh);
+      setNowFocus(fresh.focus);
+    });
+  }, []);
 
   const [reminderDays, setReminderDays] = useState<number[]>([1, 3, 5]);
   const [reminderTime, setReminderTime] = useState("18:30");
@@ -37,6 +58,7 @@ export default function Home() {
     const next = { ...profile, ...patch };
     setProfile(next);
     store.setProfile(next);
+    void sync.pushProfile(next);
   };
 
   const progress = computeProgress(history);
@@ -52,7 +74,18 @@ export default function Home() {
           {greeting()}
           {profile.name ? `, ${profile.name}` : ""}.
         </h1>
-        <p className="mt-2 text-sm text-muted">built from what&apos;s actually downstairs.</p>
+        <p className="mt-2 text-sm text-muted">{dailyLine()}</p>
+        <p className="mt-4 text-xs text-muted">
+          {me ? (
+            <>
+              <span className="text-sand">{me.nickname}</span> · building {me.building} ·{" "}
+              <button className="underline" onClick={async () => { await sync.signOut(); setMe(null); setBuilding([]); }}>sign out</button>
+            </>
+          ) : (
+            <Link href="/join" className="text-sand underline">join the building</Link>
+          )}
+          {!me && <span> · keeps your history across phones</span>}
+        </p>
       </header>
 
       {/* ---- for today ---------------------------------------------------- */}
@@ -123,6 +156,22 @@ export default function Home() {
           ) : (
             <p className="mt-3 text-xs text-muted">log weights on the same exercise twice and your strength trend shows up here.</p>
           )}
+        </section>
+      )}
+
+      {/* ---- building ----------------------------------------------------- */}
+      {me && building.length > 0 && (
+        <section className="mt-10">
+          <span className="label">this week in the building</span>
+          <div className="card p-4">
+            <ul className="flex flex-wrap gap-x-4 gap-y-2 text-sm">
+              {building.map((b) => (
+                <li key={b.nickname} className={b.nickname === me.nickname ? "text-fg" : "text-muted"}>
+                  {b.nickname} <span className="font-mono text-xs text-sand">{b.sessions}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </section>
       )}
 

@@ -4,7 +4,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { generateQuick, generateSession, type Block, type Focus, type Goal, type Profile } from "@/lib/generate";
-import { store, suggestLoad, type SetLog } from "@/lib/store";
+import { newId, store, suggestLoad, type HistoryEntry, type SetLog } from "@/lib/store";
+import { sync } from "@/lib/sync";
+import { restLine } from "@/lib/fun";
 import { mediaFrames, videoEmbedUrl, youtubeSearchUrl, type Exercise } from "@/lib/exercises";
 import { equipmentById } from "@/lib/equipment";
 
@@ -64,15 +66,20 @@ export default function Workout() {
     if (restSec > 0) setRest({ total: restSec, left: restSec });
   };
 
-  const finish = () => {
-    store.finishSession({
+  const finish = async () => {
+    const entry: HistoryEntry = {
+      id: newId(),
       date: new Date().toISOString(),
       title: base.title,
       dayIndex,
       quick,
       sets: blocks.map((b, i) => ({ exerciseId: b.exercise.id, sets: logs[i] ?? [] })).filter((s) => s.sets.length),
-    });
-    router.push("/");
+    };
+    store.finishSession(entry);
+    await sync.pushSessions([entry]);
+    const loaded = blocks.flatMap((b, i) => (b.kind === "main" ? (logs[i] ?? []).map((s) => s.reps >= b.repMax) : []));
+    const top = loaded.length > 0 && loaded.every(Boolean) ? "1" : "0";
+    router.push(`/done?t=${elapsed}&top=${top}`);
   };
 
   return (
@@ -102,6 +109,7 @@ export default function Workout() {
             <div>
               <div className="eyebrow">rest</div>
               <div className="display text-5xl tabular-nums">{fmt(rest.left)}</div>
+              <div className="mt-1 max-w-[220px] text-xs text-muted">{restLine(Object.values(logs).reduce((n, l) => n + l.length, 0))}</div>
             </div>
             <div className="flex gap-2">
               <button className="choice" onClick={() => setRest({ ...rest, left: rest.left + 30 })}>+30 s</button>
