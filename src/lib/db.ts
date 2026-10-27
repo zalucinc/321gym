@@ -13,7 +13,7 @@ export function db(): Pool {
   if (!globalThis.__gymPool) {
     globalThis.__gymPool = new Pool({
       connectionString: process.env.DATABASE_URL,
-      ssl: process.env.DATABASE_URL.includes("railway") || process.env.PGSSL === "1" ? { rejectUnauthorized: false } : undefined,
+      ssl: process.env.PGSSL === "1" ? { rejectUnauthorized: false } : undefined, // railway internal network is plain tcp
       max: 5,
     });
   }
