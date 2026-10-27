@@ -57,6 +57,26 @@ createdb apt_gym_dev          # schema is created on first request
 - `src/lib/sync.ts` — client side: hydrate, push, offline queue.
 - `src/app/api/*` — join, me, profile, sessions, logout.
 
+## iOS shell (TestFlight)
+
+`ios/` is a thin SwiftUI + `WKWebView` app around the live site: persistent
+cookies, inline video, pull-to-refresh, external links in Safari, offline
+retry. It injects `window.__gym321Native` and a `reminders` message handler,
+which the reminders card uses to schedule weekly local notifications instead
+of a calendar file.
+
+```bash
+brew install xcodegen
+cd ios && xcodegen generate            # project.yml → Gym321.xcodeproj
+xcodebuild -project Gym321.xcodeproj -scheme Gym321 \
+  -destination 'generic/platform=iOS' -configuration Release \
+  -archivePath build/Gym321.xcarchive -allowProvisioningUpdates archive
+open build/Gym321.xcarchive            # Xcode Organizer → Distribute App → TestFlight
+```
+
+Bundle id `com.zalucinc.gym321`, team in `project.yml`. Bump
+`CURRENT_PROJECT_VERSION` before each upload.
+
 ## Deliberate limits
 
 - Reminders use the phone's calendar instead of push, so no push server is needed.
