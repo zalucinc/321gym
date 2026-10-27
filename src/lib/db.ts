@@ -53,6 +53,7 @@ create table if not exists sessions (
   unique (member_id, client_id)
 );
 create index if not exists sessions_member_date on sessions (member_id, date desc);
+alter table members add column if not exists active_until timestamptz;
 `;
 
 export function ready(): Promise<void> {

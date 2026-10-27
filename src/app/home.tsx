@@ -10,7 +10,7 @@ import { computeProgress } from "@/lib/progress";
 import { coverImage } from "@/lib/exercises";
 import { recommend } from "@/lib/recommend";
 import { dailyLine } from "@/lib/fun";
-import { sync, type BuildingRow, type Me } from "@/lib/sync";
+import { sync, type Building, type Me } from "@/lib/sync";
 
 const DEFAULT: Profile = { name: "", goal: "general", minutes: 45, days: 3 };
 const WEEKDAYS = ["su", "mo", "tu", "we", "th", "fr", "sa"];
@@ -33,7 +33,7 @@ export default function Home() {
   const preview = generateQuick(profile.goal, nowMinutes, nowFocus, quickSeed);
 
   const [me, setMe] = useState<Me | null>(() => sync.getMe());
-  const [building, setBuilding] = useState<BuildingRow[]>([]);
+  const [building, setBuilding] = useState<Building | null>(null);
   useEffect(() => {
     if (!sync.getMe()) return;
     sync.hydrate().then((r) => {
@@ -79,7 +79,7 @@ export default function Home() {
           {me ? (
             <>
               <span className="text-sand">{me.nickname}</span> · building {me.building} ·{" "}
-              <button className="underline" onClick={async () => { await sync.signOut(); setMe(null); setBuilding([]); }}>sign out</button>
+              <button className="underline" onClick={async () => { await sync.signOut(); setMe(null); setBuilding(null); }}>sign out</button>
             </>
           ) : (
             <Link href="/join" className="text-sand underline">join the building</Link>
@@ -160,17 +160,17 @@ export default function Home() {
       )}
 
       {/* ---- building ----------------------------------------------------- */}
-      {me && building.length > 0 && (
+      {me && building && (
         <section className="mt-10">
-          <span className="label">this week in the building</span>
-          <div className="card p-4">
-            <ul className="flex flex-wrap gap-x-4 gap-y-2 text-sm">
-              {building.map((b) => (
-                <li key={b.nickname} className={b.nickname === me.nickname ? "text-fg" : "text-muted"}>
-                  {b.nickname} <span className="font-mono text-xs text-sand">{b.sessions}</span>
-                </li>
-              ))}
-            </ul>
+          <span className="label">the gym right now</span>
+          <div className="card flex items-center justify-between p-4">
+            <div className="flex items-center gap-3">
+              <span className={`h-2.5 w-2.5 rounded-full ${busyTone(building.now)}`} />
+              <span className="display text-xl">{busyLabel(building.now)}</span>
+            </div>
+            <span className="text-xs text-muted">
+              {building.week === 0 ? "nobody yet this week" : building.week === 1 ? "1 neighbour trained this week" : `${building.week} neighbours trained this week`}
+            </span>
           </div>
         </section>
       )}
@@ -307,6 +307,20 @@ export default function Home() {
       )}
     </main>
   );
+}
+
+/** Presence buckets. Counts only, never names. */
+function busyLabel(n: number) {
+  if (n <= 0) return "empty";
+  if (n <= 2) return "barely anyone";
+  if (n <= 4) return "getting busier";
+  return "busy";
+}
+function busyTone(n: number) {
+  if (n <= 0) return "bg-line";
+  if (n <= 2) return "bg-sand/70";
+  if (n <= 4) return "bg-accent/80";
+  return "bg-accent";
 }
 
 function summary(s: Session) {

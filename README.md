@@ -43,7 +43,9 @@ Residents join with the **building code** (you set it), a **nickname** and a
 you: it's scrypt-hashed and five wrong tries lock the name for 15 minutes.
 Signed-in phones hydrate from the server on load and push every finished
 session; if the gym has no signal the write queues and retries next time.
-"this week in the building" shows everyone's session count for the week.
+The building view is anonymous by design: "the gym right now" (barely anyone /
+getting busier / busy, from members who started a workout in the last 90 min)
+and a count of how many neighbours trained this week. Never names.
 
 ```bash
 cp .env.example .env.local   # DATABASE_URL + BUILDING_CODES

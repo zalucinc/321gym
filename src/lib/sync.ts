@@ -8,7 +8,7 @@ import type { Profile } from "./generate";
 // Failed pushes queue in localStorage and retry on the next load.
 
 export interface Me { nickname: string; building: string }
-export interface BuildingRow { nickname: string; sessions: number }
+export interface Building { now: number; week: number }
 
 const PENDING = "gym.pendingSessions";
 const ME = "gym.me";
@@ -19,12 +19,12 @@ export const sync = {
   },
 
   /** Pull everything from the server, replace local, flush the queue. Returns null when signed out. */
-  async hydrate(): Promise<{ me: Me; building: BuildingRow[] } | null> {
+  async hydrate(): Promise<{ me: Me; building: Building } | null> {
     await this.flush();
     const r = await fetch("/api/me", { cache: "no-store" }).catch(() => null);
     if (!r || r.status === 401) { localStorage.removeItem(ME); return null; }
     if (!r.ok) return null;
-    const data = (await r.json()) as { member: Me; profile: Profile | null; history: HistoryEntry[]; building: BuildingRow[] };
+    const data = (await r.json()) as { member: Me; profile: Profile | null; history: HistoryEntry[]; building: Building };
     localStorage.setItem(ME, JSON.stringify(data.member));
     if (data.profile) store.setProfile(data.profile);
     if (data.history.length) store.replaceHistory(data.history);
@@ -43,6 +43,12 @@ export const sync = {
     const p = store.getProfile();
     if (p) await this.pushProfile(p);
     return { ok: true };
+  },
+
+  /** "start" marks you present for ~90 min; "end" clears it. Fire-and-forget. */
+  presence(state: "start" | "end") {
+    if (!this.getMe()) return;
+    void fetch("/api/presence", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ state }), keepalive: true }).catch(() => null);
   },
 
   async signOut() {

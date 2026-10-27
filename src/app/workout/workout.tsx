@@ -39,6 +39,11 @@ export default function Workout() {
   const [elapsed, setElapsed] = useState(0);
   const startedAt = useRef<number | null>(null);
 
+  // Presence: counted as "in the gym" until finish or 90 minutes.
+  useEffect(() => {
+    sync.presence("start");
+  }, []);
+
   // Session clock.
   useEffect(() => {
     startedAt.current = Date.now();
@@ -76,6 +81,7 @@ export default function Workout() {
       sets: blocks.map((b, i) => ({ exerciseId: b.exercise.id, sets: logs[i] ?? [] })).filter((s) => s.sets.length),
     };
     store.finishSession(entry);
+    sync.presence("end");
     await sync.pushSessions([entry]);
     const loaded = blocks.flatMap((b, i) => (b.kind === "main" ? (logs[i] ?? []).map((s) => s.reps >= b.repMax) : []));
     const top = loaded.length > 0 && loaded.every(Boolean) ? "1" : "0";
