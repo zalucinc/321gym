@@ -51,6 +51,17 @@ export default function Home() {
     });
   }, []);
 
+  // Live indicator: refresh every 30 s while the tab is visible, and when it becomes visible again.
+  useEffect(() => {
+    if (!me) return;
+    let stop = false;
+    const tick = async () => { const b = await sync.building(); if (!stop && b) setBuilding(b); };
+    const id = setInterval(() => { if (document.visibilityState === "visible") void tick(); }, 30_000);
+    const onVis = () => { if (document.visibilityState === "visible") void tick(); };
+    document.addEventListener("visibilitychange", onVis);
+    return () => { stop = true; clearInterval(id); document.removeEventListener("visibilitychange", onVis); };
+  }, [me]);
+
   const [reminderDays, setReminderDays] = useState<number[]>([1, 3, 5]);
   const [reminderTime, setReminderTime] = useState("18:30");
 
@@ -74,7 +85,8 @@ export default function Home() {
           {greeting()}
           {profile.name ? `, ${profile.name}` : ""}.
         </h1>
-        <p className="mt-2 text-sm text-muted">{dailyLine()}</p>
+        <p className="display mt-3 text-lg leading-snug text-fg/90">{dailyLine().text}</p>
+        <p className="mt-1 text-xs text-muted">— {dailyLine().by}</p>
         <p className="mt-4 text-xs text-muted">
           {me ? (
             <>
@@ -166,7 +178,10 @@ export default function Home() {
           <div className="card flex items-center justify-between p-4">
             <div className="flex items-center gap-3">
               <span className={`h-2.5 w-2.5 rounded-full ${busyTone(building.now)}`} />
-              <span className="display text-xl">{busyLabel(building.now)}</span>
+              <span className="display text-xl">
+                {building.now > 0 && <span className="text-sand">{building.now} · </span>}
+                {busyLabel(building.now)}
+              </span>
             </div>
             <span className="text-xs text-muted">
               {building.week === 0 ? "nobody yet this week" : building.week === 1 ? "1 neighbour trained this week" : `${building.week} neighbours trained this week`}
@@ -309,7 +324,7 @@ export default function Home() {
   );
 }
 
-/** Presence buckets. Counts only, never names. */
+/** Presence buckets from the live count. Counts only, never names. */
 function busyLabel(n: number) {
   if (n <= 0) return "empty";
   if (n <= 2) return "barely anyone";

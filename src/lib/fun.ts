@@ -65,35 +65,41 @@ export function finishLine(c: FinishContext): string {
   return pool[p.total % pool.length];
 }
 
-/** A line under the greeting, changes once a day. */
-export function dailyLine(d = new Date()): string {
-  const lines = [
-    "built from what's actually downstairs.",
-    "the elevator goes both ways. so does the gym.",
-    "no commute. no excuse. small gym, big floor.",
-    "the smith machine is patient. it will wait for you.",
-    "twenty minutes counts. the guidelines say so.",
-    "pajamas are acceptable gym wear in this building.",
-    "the kettlebells miss you. they said so.",
-    "the fifth floor has nothing on your consistency.",
-    "down the hall, left at the mats.",
-    "somebody has to use the 70s. might as well be you.",
-  ];
+export interface Verse { text: string; by: string }
+
+// Public-domain verse on struggle, pain and work. Short excerpts, attributed.
+const VERSE: Verse[] = [
+  { text: "under the bludgeonings of chance my head is bloody, but unbowed.", by: "w. e. henley, invictus, 1888" },
+  { text: "i am the master of my fate, i am the captain of my soul.", by: "w. e. henley, invictus, 1888" },
+  { text: "if you can force your heart and nerve and sinew to serve your turn long after they are gone.", by: "rudyard kipling, if—, 1910" },
+  { text: "if you can fill the unforgiving minute with sixty seconds' worth of distance run.", by: "rudyard kipling, if—, 1910" },
+  { text: "life for me ain't been no crystal stair.", by: "langston hughes, mother to son, 1922" },
+  { text: "so boy, don't you turn back. don't you set down on the steps 'cause you finds it's kinder hard.", by: "langston hughes, mother to son, 1922" },
+  { text: "i'se still goin', honey, i'se still climbin'.", by: "langston hughes, mother to son, 1922" },
+  { text: "if there is no struggle, there is no progress.", by: "frederick douglass, 1857" },
+  { text: "the credit belongs to the man who is actually in the arena, whose face is marred by dust and sweat and blood.", by: "theodore roosevelt, 1910" },
+  { text: "who strives valiantly; who errs, who comes short again and again.", by: "theodore roosevelt, 1910" },
+  { text: "i know why the caged bird beats his wing till its blood is red on the cruel bars.", by: "paul laurence dunbar, sympathy, 1899" },
+  { text: "we never know how high we are till we are called to rise.", by: "emily dickinson, c. 1870" },
+  { text: "i am larger, better than i thought; i did not know i held so much goodness.", by: "walt whitman, song of the open road, 1856" },
+  { text: "that which we persist in doing becomes easier, not that the nature of the thing has changed, but that our power to do has increased.", by: "ralph waldo emerson" },
+  { text: "the art of life is more like the wrestler's art than the dancer's.", by: "marcus aurelius, meditations" },
+  { text: "nothing happens to any man which he is not formed by nature to bear.", by: "marcus aurelius, meditations" },
+  { text: "difficulties strengthen the mind, as labor does the body.", by: "seneca" },
+  { text: "the race is not to the swift, nor the battle to the strong.", by: "ecclesiastes 9:11" },
+  { text: "they can because they think they can.", by: "virgil, aeneid" },
+  { text: "dripping water hollows out stone, not through force but through persistence.", by: "ovid" },
+  { text: "no bird soars too high if he soars with his own wings.", by: "william blake, 1790" },
+];
+
+/** Verse under the greeting, changes once a day. */
+export function dailyLine(d = new Date()): Verse {
   const day = Math.floor(d.getTime() / 864e5);
-  return lines[day % lines.length];
+  return VERSE[day % VERSE.length];
 }
 
-/** Shown under the rest timer. Picks by set count so it changes through the session. */
-export function restLine(n: number): string {
-  const lines = [
-    "breathe. the weights aren't going anywhere.",
-    "shake it out. look at something far away.",
-    "water, if you brought some.",
-    "this is the part that makes the next set count.",
-    "rest is training. sit with it.",
-    "unclench your jaw. nobody tells you that one.",
-    "the last set is the one that matters. this isn't it yet.",
-    "stand up straight. shoulders down. good.",
-  ];
-  return lines[n % lines.length];
+/** Verse under the rest timer. Picks by set count so it changes through the session. */
+export function restLine(n: number): Verse {
+  // Offset so the rest verse differs from today's greeting verse.
+  return VERSE[(n * 7 + 3) % VERSE.length];
 }

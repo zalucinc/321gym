@@ -39,9 +39,11 @@ export default function Workout() {
   const [elapsed, setElapsed] = useState(0);
   const startedAt = useRef<number | null>(null);
 
-  // Presence: counted as "in the gym" until finish or 90 minutes.
+  // Presence heartbeat: counted as "in the gym" while this screen is open.
   useEffect(() => {
     sync.presence("start");
+    const id = setInterval(() => { if (document.visibilityState === "visible") sync.presence("start"); }, 60_000);
+    return () => clearInterval(id);
   }, []);
 
   // Session clock.
@@ -115,7 +117,10 @@ export default function Workout() {
             <div>
               <div className="eyebrow">rest</div>
               <div className="display text-5xl tabular-nums">{fmt(rest.left)}</div>
-              <div className="mt-1 max-w-[220px] text-xs text-muted">{restLine(Object.values(logs).reduce((n, l) => n + l.length, 0))}</div>
+              <div className="mt-1 max-w-[230px] text-xs leading-snug text-muted">
+                {restLine(Object.values(logs).reduce((n, l) => n + l.length, 0)).text}
+                <span className="block text-[10px] opacity-70">— {restLine(Object.values(logs).reduce((n, l) => n + l.length, 0)).by}</span>
+              </div>
             </div>
             <div className="flex gap-2">
               <button className="choice" onClick={() => setRest({ ...rest, left: rest.left + 30 })}>+30 s</button>

@@ -45,7 +45,14 @@ export const sync = {
     return { ok: true };
   },
 
-  /** "start" marks you present for ~90 min; "end" clears it. Fire-and-forget. */
+  /** Live counts for the home indicator. Null when signed out or offline. */
+  async building(): Promise<Building | null> {
+    if (!this.getMe()) return null;
+    const r = await fetch("/api/building", { cache: "no-store" }).catch(() => null);
+    return r && r.ok ? ((await r.json()) as Building) : null;
+  },
+
+  /** "start" is a heartbeat (present for 3 more minutes); "end" clears it. Fire-and-forget. */
   presence(state: "start" | "end") {
     if (!this.getMe()) return;
     void fetch("/api/presence", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ state }), keepalive: true }).catch(() => null);
